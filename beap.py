@@ -55,3 +55,58 @@ class Beap:
         (zero-based)."""
         start, end = Beap.span_1_based(i + 1)
         return (start - 1, end - 1)
+
+
+class BeapInvariantsMixIn:
+
+    # "Taking a slightly different point of view, one can interpret
+    # this structure as an upper triangular of a matrix (or grid) in
+    # which locations 1, 2, 4, 7 ... form the first column and
+    # 1, 3, 6, 10 ... the first row. Furthermore, each row and each
+    # column are maintained in sorted order."
+
+    def check_row_invar(self):
+        total = 0
+        for i in range(self.height + 1):
+            idx, end = self.span(i)
+            row = []
+            for j in range(self.height + 1):
+                try:
+                    row.append(self.arr[idx])
+                except IndexError:
+                    break
+                idx += i + j + 2
+            # Max beap
+            assert row == sorted(row, reverse=True), "%r vs expected %r" % (row, sorted(row, reverse=True))
+            total += len(row)
+
+        assert total == len(self.arr)
+
+
+    def check_col_invar(self):
+        total = 0
+        for i in range(self.height + 0):
+            start, idx = self.span(i)
+            diff = idx - start
+            col = []
+            for j in range(self.height + 1):
+                try:
+                    col.append(self.arr[idx])
+                except IndexError:
+                    break
+                idx, e = self.span(i + j + 1)
+                idx += diff
+            # Max beap
+            assert col == sorted(col, reverse=True), "%r vs expected %r" % (col, sorted(col, reverse=True))
+            total += len(col)
+
+        assert total == len(self.arr), "%d vs %d" % (total, len(self.arr))
+
+
+    def check_invariants(self):
+        self.check_row_invar()
+        self.check_col_invar()
+
+
+class VerifiedBeap(Beap, BeapInvariantsMixIn):
+    pass
