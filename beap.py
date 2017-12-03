@@ -28,6 +28,11 @@
 # THE SOFTWARE.
 #
 
+import logging
+
+log = logging.getLogger(__name__)
+
+
 class Beap:
 
     def __init__(self):
@@ -55,6 +60,74 @@ class Beap:
         (zero-based)."""
         start, end = Beap.span_1_based(i + 1)
         return (start - 1, end - 1)
+
+    def search(self, x):
+        """Search for element x in beap. If not found, return None.
+        Otherwise, return tuple of (idx, height) with array index
+        and span height at which the element was found. (Span height
+        is returned because it may be needed for some further
+        operations, to avoid square root operation which is otherwise
+        needed to convert array index to it.)
+        """
+        h = self.height
+        start, end = self.span(h)
+        idx = start
+
+        while 1:
+            log.debug("search: idx: %d", idx)
+            log.debug("search: idx: %d arr[idx]: %s", idx, self.arr[idx])
+            if x > self.arr[idx]:
+                # "If x is less than the element under consideration, move left
+                # one position along the row."
+                # These rules are given for weirdly mirrored matrix. They're also
+                # for min beap, we so far implement max beap.
+                # So: if x is greater than, and move up along the column.
+                log.debug("Moving up ^")
+                if idx == end:
+                    log.debug("Can't move up")
+                    return None
+                diff = idx - start
+                h -= 1
+                start, end = self.span(h)
+                idx = start + diff
+                continue
+            elif x < self.arr[idx]:
+                # If x exceeds the element, either move down one position along the column or if
+                # this is not possible (because we are on the diagonal) then move left and down one position
+                # each.
+                # => less, move right along the row, or up and right
+                if h == self.height:
+                    log.debug("Moving right-up /")
+                    if idx == end:
+                        log.debug("Can't move right-up")
+                        return None
+                    if idx == len(self.arr) - 1:
+                        log.debug("Last el reached, can't move right-up, moving up instead")
+                        diff = idx - start
+                        h -= 1
+                        start, end = self.span(h)
+                        idx = start + diff
+                        continue
+
+                    idx += 1
+                    continue
+
+                log.debug("Moving right ->")
+                diff = idx - start
+                h += 1
+                assert h <= self.height
+                start, end = self.span(h)
+                idx = start + diff + 1
+                if idx >= len(self.arr):
+                    log.debug("Going off incomplete last row, compensating")
+                    diff = idx - start
+                    h -= 1
+                    start, end = self.span(h)
+                    print(start, end, diff)
+                    idx = start + diff
+                continue
+            else:
+                return (idx, h)
 
 
 class BeapInvariantsMixIn:
