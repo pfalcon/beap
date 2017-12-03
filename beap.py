@@ -96,36 +96,36 @@ class Beap:
                 # this is not possible (because we are on the diagonal) then move left and down one position
                 # each.
                 # => less, move right along the row, or up and right
-                if h == self.height:
-                    log.debug("Moving right-up /")
-                    if idx == end:
-                        log.debug("Can't move right-up")
-                        return None
-                    if idx == len(self.arr) - 1:
-                        log.debug("Last el reached, can't move right-up, moving up instead")
-                        diff = idx - start
-                        h -= 1
-                        start, end = self.span(h)
-                        idx = start + diff
-                        continue
-
-                    idx += 1
-                    continue
-
                 log.debug("Moving right ->")
-                diff = idx - start
-                h += 1
-                assert h <= self.height
-                start, end = self.span(h)
-                idx = start + diff + 1
-                if idx >= len(self.arr):
-                    log.debug("Going off incomplete last row, compensating")
+
+                if idx == len(self.arr) - 1:
+                    log.debug("Last el reached, can't move right, moving up instead")
                     diff = idx - start
                     h -= 1
                     start, end = self.span(h)
-                    print(start, end, diff)
                     idx = start + diff
+                    continue
+
+
+                diff = idx - start
+                new_start, new_end = self.span(h + 1)
+                new_idx = new_start + diff + 1
+                if new_idx < len(self.arr):
+                    h += 1
+                    start = new_start
+                    end = new_end
+                    idx = new_idx
+                    continue
+
+                log.debug("Can't move right, moving right-up /")
+
+                if idx == end:
+                    log.debug("Can't move right-up")
+                    return None
+
+                idx += 1
                 continue
+
             else:
                 return (idx, h)
 
