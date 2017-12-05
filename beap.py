@@ -158,7 +158,7 @@ class BeapInvariantsMixIn:
 
     def check_col_invar(self):
         total = 0
-        for i in range(self.height + 0):
+        for i in range(self.height + 1):
             start, idx = self.span(i)
             diff = idx - start
             col = []
