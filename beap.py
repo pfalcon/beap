@@ -130,6 +130,54 @@ class Beap:
                 return (idx, h)
 
 
+    def filter_up(self, idx, h):
+        "Percolate an element up the beap."
+        v = self.arr[idx]
+        while h:
+            start, end = self.span(h)
+            left_p = right_p = None
+            val_l = val_r = None
+
+            diff = idx - start
+            st_p, end_p = self.span(h - 1)
+
+            if idx != start:
+                left_p = st_p + diff - 1
+                val_l = self.arr[left_p]
+            if idx != end:
+                right_p = st_p + diff
+                val_r = self.arr[right_p]
+
+            log.debug("filter_up: left_p: %s (val: %s) right_p: %s (val: %s)", left_p, val_l, right_p, val_r)
+
+            if val_l is not None and v > val_l and (val_r is None or val_l < val_r):
+                self.arr[left_p], self.arr[idx] = self.arr[idx], self.arr[left_p]
+                idx = left_p
+                h -= 1
+            elif val_r is not None and v > val_r:
+                self.arr[right_p], self.arr[idx] = self.arr[idx], self.arr[right_p]
+                idx = right_p
+                h -= 1
+            else:
+                return
+
+        assert idx == 0
+
+
+    def insert(self, v):
+        "Insert element v into beap."
+        start, end = self.span(self.height)
+        # If last array element as at the span end, then adding
+        # new element grows beap height.
+        if len(self.arr) - 1 == end:
+            self.height += 1
+        self.arr.append(v)
+
+        h = self.height
+        idx = len(self.arr) - 1
+        return self.filter_up(idx, h)
+
+
 class BeapInvariantsMixIn:
 
     # "Taking a slightly different point of view, one can interpret
