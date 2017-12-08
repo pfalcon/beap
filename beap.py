@@ -164,6 +164,45 @@ class Beap:
         assert idx == 0
 
 
+    def filter_down(self, idx, h):
+        "Percolate an element down the beap."
+        while h <= self.height - 1:
+            start, end = self.span(h)
+            diff = idx - start
+            st_c, end_c = self.span(h + 1)
+            left_c = st_c + diff
+            right_c = None
+            val_l = val_r = None
+            if left_c < len(self.arr):
+                val_l = self.arr[left_c]
+                right_c = left_c + 1
+                if right_c >= len(self.arr):
+                    right_c = None
+                else:
+                    val_r = self.arr[right_c]
+            else:
+                left_c = None
+
+            v = self.arr[idx]
+
+            log.debug("filter_down: left_c: %s (val: %s) right_c: %s (val: %s) v: %s" % (left_c, val_l, right_c, val_r, v))
+
+            if val_l is not None and v < val_l and (val_r is None or val_l > val_r):
+                log.debug("filter_down: Swapping w/left")
+                self.arr[left_c], self.arr[idx] = self.arr[idx], self.arr[left_c]
+                idx = left_c
+                h += 1
+            elif val_r is not None and v < val_r:
+                log.debug("filter_down: Swapping w/right")
+                self.arr[right_c], self.arr[idx] = self.arr[idx], self.arr[right_c]
+                idx = right_c
+                h += 1
+            else:
+                return idx
+
+        return idx
+
+
     def insert(self, v):
         "Insert element v into beap."
         start, end = self.span(self.height)
@@ -176,6 +215,36 @@ class Beap:
         h = self.height
         idx = len(self.arr) - 1
         return self.filter_up(idx, h)
+
+
+    def delete(self, idx, h):
+        """Remove element with array index idx at the beap span of height h.
+        The height needs to be passed to avoid square root operation to find
+        it."""
+        start, end = self.span(self.height)
+        # If last array element as at the span start, then removing
+        # it decreases the beap height.
+        if len(self.arr) - 1 == start:
+            self.height -= 1
+        last = self.arr.pop()
+
+        if idx == len(self.arr):
+            log.debug("delete: deleted last element of beap")
+            return
+
+        self.arr[idx] = last
+        out_idx = self.filter_down(idx, h)
+        if out_idx == idx:
+            log.debug("delete: No filtering down happened, trying up")
+            self.filter_up(idx, h)
+
+
+    def remove(self, v):
+        "Remove element with value of v from beap."
+        res = self.search(v)
+        if res is None:
+            return None
+        return self.delete(res[0], res[1])
 
 
 class BeapInvariantsMixIn:
