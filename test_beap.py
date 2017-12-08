@@ -72,3 +72,64 @@ def test_search():
             idx, height = res
             assert beap.arr[idx] == i
             assert height <= beap.height
+
+
+def test_insert_trace_few():
+    beap = VerifiedBeap()
+
+    beap.insert(1)
+    assert beap.height == 0
+    assert beap.arr == [1]
+    beap.check_invariants()
+
+    beap.insert(2)
+    assert beap.height == 1
+    assert beap.arr == [2, 1]
+    beap.check_invariants()
+
+    beap.insert(3)
+    assert beap.height == 1
+    assert beap.arr == [3, 1, 2]
+    beap.check_invariants()
+
+    beap.insert(4)
+    assert beap.height == 2
+    assert beap.arr == [4, 3, 2, 1]
+    beap.check_invariants()
+
+    beap.insert(5)
+    assert beap.height == 2
+    assert beap.arr == [5, 3, 4, 1, 2]
+    beap.check_invariants()
+
+    beap.insert(6)
+    assert beap.height == 2
+    assert beap.arr == [6, 3, 5, 1, 2, 4]
+    beap.check_invariants()
+
+    beap.insert(7)
+    assert beap.height == 3
+    assert beap.arr == [7, 6, 5, 3, 2, 4, 1]
+    beap.check_invariants()
+
+
+def test_insert():
+    beap = VerifiedBeap()
+    data = sorted(BEAP_DATA)
+    for v in data:
+        beap.insert(v)
+        beap.check_invariants()
+    # Doesn't work and doesn't have to work, as there're many different
+    # partial orderings compatible with beap.
+    #assert beap.arr == BEAP_DATA
+
+    beap2 = VerifiedBeap()
+    data = sorted(BEAP_DATA, reverse=True)
+    for v in data:
+        beap2.insert(v)
+        beap2.check_invariants()
+
+    for i in range(101):
+        res1 = bool(beap.search(i))
+        res2 = bool(beap2.search(i))
+        assert res1 == res2
