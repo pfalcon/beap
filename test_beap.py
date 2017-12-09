@@ -133,3 +133,17 @@ def test_insert():
         res1 = bool(beap.search(i))
         res2 = bool(beap2.search(i))
         assert res1 == res2
+
+
+def test_delete():
+    beap = VerifiedBeap()
+    beap.arr = BEAP_DATA.copy()
+    beap.height = 6
+
+    res = []
+    while beap.arr:
+        res.append(beap.arr[0])
+        beap.delete(0, 0)
+        beap.check_invariants()
+
+    assert res == sorted(res, reverse=True)
