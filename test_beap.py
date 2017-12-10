@@ -1,4 +1,6 @@
 # Run with nosetests3
+import random
+
 from beap import Beap, VerifiedBeap
 
 
@@ -147,3 +149,24 @@ def test_delete():
         beap.check_invariants()
 
     assert res == sorted(res, reverse=True)
+
+
+def test_insert_remove_random():
+    beap = VerifiedBeap()
+    items = []
+    res = []
+
+    RANGE = 100
+    for i in range(RANGE):
+        v = random.randrange(RANGE * 2)
+        items.append(v)
+        beap.insert(v)
+        beap.check_invariants()
+
+    while items:
+        idx = random.randrange(len(items))
+        v = items.pop(idx)
+        beap.remove(v)
+        beap.check_invariants()
+
+    assert len(beap.arr) == 0
