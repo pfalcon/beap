@@ -42,6 +42,7 @@ class Beap:
         # distance between consecutive layers, so for single-element
         # beap height is 0, and for empty, we initialize it to -1.
         self.height = -1
+        self.iters = 0
 
     # "The i'th block consists of the i elements stored from position
     # (i(i - 1)/2 + 1) through position i(i + 1)/2."
@@ -74,6 +75,7 @@ class Beap:
         idx = start
 
         while 1:
+            self.iters += 1
             log.debug("search: idx: %d", idx)
             log.debug("search: idx: %d arr[idx]: %s", idx, self.arr[idx])
             if x > self.arr[idx]:
@@ -134,6 +136,7 @@ class Beap:
         "Percolate an element up the beap."
         v = self.arr[idx]
         while h:
+            self.iters += 1
             start, end = self.span(h)
             left_p = right_p = None
             val_l = val_r = None
@@ -167,6 +170,7 @@ class Beap:
     def filter_down(self, idx, h):
         "Percolate an element down the beap."
         while h <= self.height - 1:
+            self.iters += 1
             start, end = self.span(h)
             diff = idx - start
             st_c, end_c = self.span(h + 1)

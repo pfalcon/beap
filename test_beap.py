@@ -1,5 +1,6 @@
 # Run with nosetests3
 import random
+import math
 
 from beap import Beap, VerifiedBeap
 
@@ -170,3 +171,31 @@ def test_insert_remove_random():
         beap.check_invariants()
 
     assert len(beap.arr) == 0
+
+
+def test_op_complexity():
+    beap = VerifiedBeap()
+    items = []
+    res = []
+
+    RANGE = 100
+    for i in range(RANGE):
+        v = random.randrange(RANGE * 2)
+        items.append(v)
+        max_iters = math.ceil(math.sqrt(2 * len(beap.arr)))
+        beap.iters = 0
+        beap.insert(v)
+        assert beap.iters <= max_iters
+
+    max_iters = 2 * math.ceil(math.sqrt(2 * len(beap.arr)))
+
+    for v in items:
+        beap.iters = 0
+        beap.search(v)
+        assert beap.iters <= max_iters
+
+    while beap.arr:
+        max_iters = math.ceil(math.sqrt(2 * len(beap.arr)))
+        beap.iters = 0
+        beap.delete(0, 0)
+        assert beap.iters <= max_iters
